@@ -5,6 +5,7 @@ project("sniffer")
 FetchContent_Declare(
       libpcap
       GIT_REPOSITORY https://github.com/the-tcpdump-group/libpcap.git
+	  SOURCE_DIR 	${CMAKE_CURRENT_SOURCE_DIR}/libpcap
       GIT_TAG libpcap-1.10.5 
     )
 FetchContent_MakeAvailable(libpcap)
