@@ -16,6 +16,7 @@ void sigint_handler(int signal_number) {
 }
 
 int main(int argc, char *argv[]){
+  signal(SIGINT, sigint_handler);
   //server_address Socket
   bool mode = false; // True - server, false - client
   //For client only
