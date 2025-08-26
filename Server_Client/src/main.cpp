@@ -6,14 +6,16 @@
 #include <stdexcept>
 #include <atomic>
 #include <string>
+#include <cstring>
 #include <iostream>
+#include <memory>
 
 std::atomic<bool> STOP{false};
 
 void sigint_handler(int signal_number)
 {
   std::cout << "Shutdown started..." << std::endl;
-  STOP.load(true);
+  STOP.store(true);
 }
 
 int main(int argc, char *argv[])
@@ -91,7 +93,7 @@ int main(int argc, char *argv[])
   }
   catch (const std::exception& e)
   {
-    std::cerr << "Error occured while creating Network_Object: " << e.what << std::endl;
+    std::cerr << "Error occured while creating Network_Object: " << e.what() << std::endl;
     return -1;
   }
 

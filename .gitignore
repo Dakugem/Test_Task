@@ -1,4 +1,4 @@
 /.vscode
 /build/
-/Sniffer/libpcap/
 /gtest/
+/Sniffer/libpcap/

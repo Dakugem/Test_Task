@@ -20,5 +20,5 @@ else()
 	message(STATUS "TESTS OFF")
 endif()
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Server-Client)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Server_Client)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Sniffer)
