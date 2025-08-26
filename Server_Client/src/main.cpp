@@ -1,7 +1,6 @@
-#include "server.h"
-#include "client.h"
+#include "node.h"
 
-#include <csignal>
+#include <signal.h>
 #include <stdlib.h>
 #include <stdexcept>
 #include <atomic>
@@ -20,8 +19,12 @@ void sigint_handler(int signal_number)
 
 int main(int argc, char *argv[])
 {
-  signal(SIGINT, sigint_handler);
-  // server_address Socket
+  if(signal(SIGINT, sigint_handler) == SIG_ERR){
+    std::cerr << "Error while handler create" << std::endl;
+    return -1;
+  }
+  
+  IO_Utils::Socket server_address;
   bool mode = false; // True - server, false - client
   // For client only
   size_t connections = 0;
@@ -75,29 +78,29 @@ int main(int argc, char *argv[])
     }
   }
 
-  std::unique_ptr<Network_Object> object = nullptr;
+  std::unique_ptr<Node> node;
   try
   {
     if (mode)
     {
-      object = std::make_unique<Server>(server_address);
+      node = std::make_unique<Server>(server_address);
 
       std::cout << "Server started" << std::endl;
     }
     else
     {
-      object = std::make_unique<Client>(server_address, connections, seed);
+      node = std::make_unique<Client>(server_address, connections, seed);
 
       std::cout << "Client started" << std::endl;
     }
   }
   catch (const std::exception& e)
   {
-    std::cerr << "Error occured while creating Network_Object: " << e.what() << std::endl;
+    std::cerr << "Error occured while creating Network_node: " << e.what() << std::endl;
     return -1;
   }
 
-  object->run(STOP);
+  node->run(STOP);
 
   std::cout << "Shutdown complete" << std::endl;
 
