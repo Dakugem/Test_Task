@@ -34,6 +34,7 @@ namespace IO_Utils
         std::vector<uint8_t> data;
 
     public:
+        Packet() : socket(Socket()) {}
         Packet(Socket socket) : socket(socket) {}
 
         const Socket get_socket() const { return socket; }
@@ -79,7 +80,7 @@ namespace IO_Utils
     public:
         TCP_Connection() : Connection() {}
         TCP_Connection(Socket socket, TCP_Connection_Method method);
-        // Попробую принимать соединения через конструктор копирования
+        // Буду принимать соединения (accept) через конструктор копирования
         TCP_Connection(const TCP_Connection &tcp_connection);
 
         int send_packet(const Packet &packet) override;

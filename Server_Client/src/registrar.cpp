@@ -23,6 +23,8 @@ namespace IO_Utils
             if(!fds.empty()) //error
 
             close(epoll_fd);
+
+            epoll_fd = -1;
         }
     }
 

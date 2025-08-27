@@ -6,6 +6,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <cerrno>
 
 namespace IO_Utils
 {
@@ -58,7 +59,7 @@ namespace IO_Utils
     }
 
     /*
-    bool Socket::operator==(const Socket& other){
+    bool Socket::operator==(const Socket&  other){
         return this->ip == other.ip && this->port == other.port;
     }*/
 
@@ -156,11 +157,21 @@ namespace IO_Utils
         if (fd == -1)
         {
             close(fd);
+            return -1;
+        }
+
+        if (set_nonblocking(fd) == -1)
+        {
+            close(fd);
             return -2;
         }
 
+        errno = 0;
         if (::connect(fd, (sockaddr *)&address, sizeof(address)) == -1)
         {
+            if(errno == EINPROGRESS){
+                return fd;
+            }
             close(fd);
             return -3;
         }
@@ -201,15 +212,17 @@ namespace IO_Utils
         {
             if ((size_t)send_bytes < data.size())
             {
-                return -2;
+                return -1;
             }
-        }
-        else
-        {
-            return -1;
-        }
 
-        return 0;
+            return 0;
+        }
+        else if(send_bytes == 0)
+        {
+            return -2;
+        }else{
+            return -3;
+        }
     }
 
     int TCP_Connection::recv_packet(Packet &packet)

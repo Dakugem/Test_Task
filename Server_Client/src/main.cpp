@@ -19,38 +19,54 @@ void sigint_handler(int signal_number)
 
 int main(int argc, char *argv[])
 {
-  if(signal(SIGINT, sigint_handler) == SIG_ERR){
+  if (signal(SIGINT, sigint_handler) == SIG_ERR)
+  {
     std::cerr << "Error while handler create" << std::endl;
     return -1;
   }
-  
+
+  bool isAddress = false, isMode = false, isConnections = false, isSeed = false;
   IO_Utils::Socket server_address;
   bool mode = false; // True - server, false - client
   // For client only
-  size_t connections = 0;
+  size_t amount_of_connections = 0;
   size_t seed = 0;
 
   for (int i = 0; i < argc; ++i)
   {
-    if (!strcmp(argv[i], "--addr") && argc > i + 1)
+    if (!strcmp(argv[i], "--addr"))
     {
+      if (argc <= i + 1)
+      {
+        std::cerr << "Server address is empty" << std::endl;
+        return -1;
+      }
+
       i++;
       if (!server_address.set_addr_from_str(argv[i]))
       {
         std::cerr << "Invalid server address" << std::endl;
         return -1;
       }
+
+      isAddress = true;
     }
 
-    if (!strcmp(argv[i], "--mode") && argc > i + 1)
+    if (!strcmp(argv[i], "--mode"))
     {
+      if (argc <= i + 1)
+      {
+        std::cerr << "Mode is empty" << std::endl;
+        return -1;
+      }
+
       i++;
 
-      if (!strcmp(argv[i], "server") && argc > i + 1)
+      if (!strcmp(argv[i], "server") || !strcmp(argv[i], "Server"))
       {
         mode = true;
       }
-      else if (!strcmp(argv[i], "client") && argc > i + 1)
+      else if (!strcmp(argv[i], "client") || !strcmp(argv[i], "Client"))
       {
         mode = false;
       }
@@ -59,22 +75,57 @@ int main(int argc, char *argv[])
         std::cerr << "Invalid operating mode" << std::endl;
         return -1;
       }
+
+      isMode = true;
     }
 
-    if (!strcmp(argv[i], "--connections") && argc > i + 1)
+    if (!strcmp(argv[i], "--connections"))
     {
+      if (argc <= i + 1)
+      {
+        std::cerr << "Connections is empty" << std::endl;
+        return -1;
+      }
+
       i++;
 
       // Могут быть ошибки с аргументом argv[i]
-      connections = std::stoull(argv[i]);
+      amount_of_connections = std::stoull(argv[i]);
+
+      isConnections = true;
     }
 
-    if (!strcmp(argv[i], "--seed") && argc > i + 1)
+    if (!strcmp(argv[i], "--seed"))
     {
+      if (argc <= i + 1)
+      {
+        std::cerr << "Seed is empty" << std::endl;
+        return -1;
+      }
+
       i++;
 
       // Могут быть ошибки с аргументом argv[i]
       seed = std::stoull(argv[i]);
+
+      isSeed = true;
+    }
+  }
+
+  if (!isAddress || !isMode)
+  {
+    std::cerr << "Empty address or mode" << std::endl;
+
+    return -1;
+  }
+
+  if (!mode)
+  {
+    if (!isConnections || !isSeed)
+    {
+      std::cerr << "Empty connections or seed" << std::endl;
+
+      return -1;
     }
   }
 
@@ -89,17 +140,17 @@ int main(int argc, char *argv[])
     }
     else
     {
-      node = std::make_unique<Client>(server_address, connections, seed);
+      node = std::make_unique<Client>(server_address, amount_of_connections, seed);
 
       std::cout << "Client started" << std::endl;
     }
   }
-  catch (const std::exception& e)
+  catch (const std::exception &e)
   {
     std::cerr << "Error occured while creating Network_node: " << e.what() << std::endl;
     return -1;
   }
-
+  
   node->run(STOP);
 
   std::cout << "Shutdown complete" << std::endl;
