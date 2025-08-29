@@ -45,9 +45,9 @@ namespace IO_Utils
             if (p->ai_family == AF_INET)
             {
                 struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
-                
-                this->ip = ipv4->sin_addr.s_addr;   
-                this->port = ntohs(ipv4->sin_port); 
+
+                this->ip = ipv4->sin_addr.s_addr;
+                this->port = ntohs(ipv4->sin_port);
 
                 freeaddrinfo(res);
                 return true;
@@ -57,11 +57,6 @@ namespace IO_Utils
         freeaddrinfo(res);
         return false;
     }
-
-    /*
-    bool Socket::operator==(const Socket&  other){
-        return this->ip == other.ip && this->port == other.port;
-    }*/
 
     static int set_nonblocking(int fd)
     {
@@ -169,7 +164,8 @@ namespace IO_Utils
         errno = 0;
         if (::connect(fd, (sockaddr *)&address, sizeof(address)) == -1)
         {
-            if(errno == EINPROGRESS){
+            if (errno == EINPROGRESS)
+            {
                 return fd;
             }
             close(fd);
@@ -217,10 +213,12 @@ namespace IO_Utils
 
             return 0;
         }
-        else if(send_bytes == 0)
+        else if (send_bytes == 0)
         {
             return -2;
-        }else{
+        }
+        else
+        {
             return -3;
         }
     }
@@ -259,5 +257,16 @@ namespace IO_Utils
                 // error
             }
         }
+    }
+}
+
+namespace std
+{
+    std::size_t hash<IO_Utils::Socket>::operator()(const IO_Utils::Socket &sock)
+    {
+        std::size_t h1 = std::hash<uint32_t>{}(sock.get_addr_ip());
+        std::size_t h2 = std::hash<uint16_t>{}(sock.get_addr_port());
+
+        return h1 ^ (h2 << 1);
     }
 }

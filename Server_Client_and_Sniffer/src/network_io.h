@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <functional>
 
 namespace IO_Utils
 {
@@ -24,7 +25,7 @@ namespace IO_Utils
         std::string get_addr_to_str();
         bool set_addr_from_str(std::string address);
 
-        // bool operator==(const Socket& other);
+        auto operator<=>(const Socket&) const = default;
     };
 
     class Packet
@@ -75,7 +76,7 @@ namespace IO_Utils
     {
         int listen();
         int connect();
-        int accept(TCP_Connection& tcp_connection) const;
+        int accept(TCP_Connection &tcp_connection) const;
 
     public:
         TCP_Connection() : Connection() {}
@@ -87,5 +88,14 @@ namespace IO_Utils
         int recv_packet(Packet &packet) override;
 
         ~TCP_Connection();
+    };
+}
+
+namespace std
+{
+    template <>
+    struct hash<IO_Utils::Socket>
+    {
+        std::size_t operator()(const IO_Utils::Socket &sock);
     };
 }
